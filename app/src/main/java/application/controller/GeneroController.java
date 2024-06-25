@@ -1,51 +1,79 @@
-package com.example.demo.controller;
+package application.controller;
 
-import com.example.demo.model.Genero;
-import com.example.demo.repository.GeneroRepository;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+import application.model.Genero;
+import application.repository.GeneroRepository;
 
-@RestController
+@Controller
 @RequestMapping("/generos")
 public class GeneroController {
-
     @Autowired
-    private GeneroRepository generoRepository;
+    private GeneroRepository generoRepo;
 
-    // Endpoint para listar todos os gêneros
-    @GetMapping
-    public List<Genero> listarGeneros() {
-        return generoRepository.findAll();
+    @RequestMapping("/insert")
+    public String insert() {
+        return "/genero/insert";
     }
 
-    // Endpoint para buscar um gênero por ID
-    @GetMapping("/{id}")
-    public Genero buscarGeneroPorId(@PathVariable Long id) {
-        return generoRepository.findById(id).orElse(null);
+    @RequestMapping(value = "/insert", method = RequestMethod.POST)
+    public String insert(@RequestParam("nome") String nome) {
+        Genero genero = new Genero();
+        genero.setNome(nome);
+        generoRepo.save(genero);
+
+        return "redirect:/generos/list";
     }
 
-    // Endpoint para criar um novo gênero
-    @PostMapping
-    public Genero criarGenero(@RequestBody Genero genero) {
-        return generoRepository.save(genero);
+    @RequestMapping("/list")
+    public String list(Model ui) {
+        ui.addAttribute("generos", generoRepo.findAll());
+
+        return "/genero/list";
     }
 
-    // Endpoint para atualizar um gênero existente
-    @PutMapping("/{id}")
-    public Genero atualizarGenero(@PathVariable Long id, @RequestBody Genero generoAtualizado) {
-        Genero genero = generoRepository.findById(id).orElse(null);
-        if (genero != null) {
-            genero.setNome(generoAtualizado.getNome());
-            return generoRepository.save(genero);
+    @RequestMapping("/update")
+    public String update(@RequestParam("id") int id, Model ui) {
+        Optional<Genero> result = generoRepo.findById(id);
+        if(result.isPresent()) {
+            ui.addAttribute("genero", result.get());
+            return "/genero/update";
         }
-        return null; // ou lançar uma exceção ou retornar um ResponseEntity com status adequado
+        return "redirect:/generos/list";
     }
 
-    // Endpoint para deletar um gênero
-    @DeleteMapping("/{id}")
-    public void deletarGenero(@PathVariable Long id) {
-        generoRepository.deleteById(id);
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public String update(@RequestParam("id") int id, @RequestParam("nome") String nome) {
+        Optional<Genero> result = generoRepo.findById(id);
+        if(result.isPresent()) {
+            result.get().setNome(nome);
+
+            generoRepo.save(result.get());
+        }
+
+        return "redirect:/generos/list";
+    }
+
+    @RequestMapping("/delete")
+    public String delete(@RequestParam("id") int id, Model ui) {
+        Optional<Genero> result = generoRepo.findById(id);
+        if(result.isPresent()) {
+            ui.addAttribute("genero", result.get());
+            return "/genero/delete";
+        }
+        return "redirect:/generos/list";
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public String delete(@RequestParam("id") int id) {
+        generoRepo.deleteById(id);
+        return "redirect:/generos/list";
     }
 }

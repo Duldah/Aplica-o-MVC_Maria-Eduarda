@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package application.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,19 +11,19 @@ public class Jogo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     private String titulo;
     private boolean multiplayer;
 
     @ManyToOne
-    private Genero genero;
+    private Jogo jogo;
 
     // getters e setters
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -44,10 +44,10 @@ public class Jogo {
     }
 
     public Genero getGenero() {
-        return genero;
+        return jogo;
     }
 
-    public void setGenero(Genero genero) {
-        this.genero = genero;
+    public void setGenero(Jogo jogo) {
+        this.jogo = jogo;
     }
 }

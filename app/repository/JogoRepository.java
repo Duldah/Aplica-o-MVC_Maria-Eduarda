@@ -1,7 +1,9 @@
-package com.example.demo.repository;
+package application.repository;
 
-import com.example.demo.model.Jogo;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface JogoRepository extends JpaRepository<Jogo, Long> {
+import application.model.Jogo;
+
+public interface JogoRepository extends CrudRepository<Genero, Integer> {
+    public Iterable<Jogo> findByTitulo(String titulo);
 }
